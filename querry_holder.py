@@ -7,6 +7,7 @@ class DBHolder:
         conn = sqlite3.connect('ladder.db')
         c = conn.cursor()
         c.execute('CREATE TABLE IF NOT EXISTS ladder (team TEXT, score INTEGER)')
+        c.execute('CREATE TABLE IF NOT EXISTS HOSTINFO (hostname TEXT, ipadr TEXT, port INTEGER)')
         c.close()
  
     def update_score(self, team, new_score):
@@ -54,11 +55,39 @@ class DBHolder:
         c = conn.cursor()
         c.execute("SELECT score FROM ladder WHERE team='{}'".format(team))
         return (c.fetchone()[0])
-        c.close()
  
     def get_top10(self):
         conn = sqlite3.connect('ladder.db')
         c = conn.cursor()
         c.execute("SELECT * FROM ladder ORDER BY score DESC LIMIT 10")
         return c.fetchall()
-        c.close()
+
+#-------------------
+
+    def get_hosts(self):
+        conn = sqlite3.connect('ladder.db')
+        c = conn.cursor()
+        c.execute("SELECT * FROM HOSTINFO")
+        return c.fetchall()
+
+    def create_host(self, hostname, ipadr, port):
+        conn = sqlite3.connect('ladder.db')
+        c = conn.cursor()
+        c.execute("SELECT * FROM HOSTINFO WHERE hostname='{}'".format(hostname))
+ 
+        if not c.fetchone():
+            c.execute("INSERT INTO HOSTINFO VALUES('{}', '{}', '{}')".format(hostname, ipadr, port))
+            conn.commit()
+            c.close()
+            return True
+ 
+        else:
+            conn.commit()
+            c.close()
+            return False
+
+    def get_host_info(self, hostname):
+        conn = sqlite3.connect('ladder.db')
+        c = conn.cursor()
+        c.execute("SELECT * FROM HOSTINFO WHERE hostname='{}'".format(hostname))
+        return c.fetchone()
