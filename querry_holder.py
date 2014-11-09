@@ -17,15 +17,10 @@ class DBHolder:
  
         c.execute("SELECT * FROM ladder WHERE team='{}'".format(team))
  
-        if not c.fetchone():
-            return False
- 
-        else:
-            # self.c.execute("UPDATE ladder SET score='{}' WHERE team='{}'".format(new_score + old_score, team))
-            c.execute("UPDATE ladder SET score='{}' WHERE team='{}'".format(max(new_score, old_score), team))
-            conn.commit()            
-            c.close()
-            return True
+        # self.c.execute("UPDATE ladder SET score='{}' WHERE team='{}'".format(new_score + old_score, team))
+        c.execute("UPDATE ladder SET score='{}' WHERE team='{}'".format(max(new_score, old_score), team))
+        conn.commit()
+        c.close()
  
     def add_score_to_ladder(self, team, score):
         conn = sqlite3.connect('ladder.db')
@@ -36,12 +31,12 @@ class DBHolder:
             c.execute("INSERT INTO ladder VALUES('{}', '{}')".format(team, score))
             conn.commit()
             c.close()
-            return True
  
         else:
+            self.update_score(team, score)
             conn.commit()
             c.close()
-            return False
+        return True
  
     def remove_team_from_ladder(self, team):
         conn = sqlite3.connect('ladder.db')
